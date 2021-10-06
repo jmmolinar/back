@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class IntroduccionJDBC {
-    public static void mani(String[] args){
+    public static void main(String[] args){
 
         SpringApplication.run(IntroduccionJDBC.class, args);
 
@@ -15,7 +15,7 @@ public class IntroduccionJDBC {
 
         try {
             //Paso 2 - Creamos el objeto de conexión a la base de datos
-            Connection conexion = DriverManager.getConnection(url, "developer", "Blackgps+2021");
+            Connection conexion = DriverManager.getConnection(url, "root", "123456");
             //Paso 3 - Creamos un objeto Statement
             Statement instruccion = conexion.createStatement();
             //Paso 4 - Creamos el query
@@ -25,7 +25,7 @@ public class IntroduccionJDBC {
             //Paso 6 - Procesamos el resultado
             while(resultado.next()){ // while para procesar cada registro
                 System.out.print("id_activo: " + resultado.getInt(1)); //getInt(1) para solicitadr el índice -> id_activo es el 1, id_vehiculo el 2 ...
-                System.out.print(" id_vehiculo: " + resultado.getInt(2));
+                System.out.println(" id_vehiculo: " + resultado.getInt(2));
             }
             //Cerramos cada objeto que hemos utilizado
             resultado.close();
