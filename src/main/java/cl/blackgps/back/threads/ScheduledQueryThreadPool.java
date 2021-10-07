@@ -8,9 +8,11 @@ public class ScheduledQueryThreadPool {
 
     public static void main(String[] args) {
 
-        ScheduledExecutorService ser = Executors.newScheduledThreadPool(5);
-        ser.schedule(new QueryThread("Hilo: " + Thread.currentThread().getId()), 2, TimeUnit.SECONDS);
-        ser.scheduleAtFixedRate(new QueryThread("Hilo: " + Thread.currentThread().getId()), 2, 5, TimeUnit.SECONDS);
+        int numDeHilos = Runtime.getRuntime().availableProcessors();
+
+        ScheduledExecutorService ser = Executors.newScheduledThreadPool(numDeHilos);
+        ser.schedule(new QueryThread("Hilo: " + Thread.currentThread().getId()), 1, TimeUnit.SECONDS);
+        ser.scheduleAtFixedRate(new QueryThread("Hilo: " + Thread.currentThread().getId()), 1, 2, TimeUnit.SECONDS);
 
         System.out.println("Finalizados todos los hilos");
     }

@@ -20,7 +20,15 @@ public class QueryThread implements Runnable {
     + "tipo_activo.nombre AS 'TIPO', " 
     + "activo.anio AS anio, " 
     + "plan_mantenimiento.id_plan_mantenimiento, "
-    + "plan_mantenimiento.nombre, " 
+    + "plan_mantenimiento.nombre, "
+    + "plan_mantenimiento.por_hora, "
+    + "plan_mantenimiento.por_km, "
+    + "plan_mantenimiento.por_periodo, "
+    + "plan_mantenimiento_has_categoria_servicio.periodo_fecha, "
+    + "plan_mantenimiento_has_categoria_servicio.periodo_cada, "
+	+ "plan_mantenimiento_has_categoria_servicio.periodo_frecuencia, "
+    + "categoria_servicio.id_categoria_servicio, "
+    + "categoria_servicio.nombre, "
     + "activo.dado_de_baja " 
     + "FROM " 
     + "activo " 
@@ -32,6 +40,10 @@ public class QueryThread implements Runnable {
     + "activo_has_plan_mantenimiento ON activo.id_activo = activo_has_plan_mantenimiento.activo_id_activo "
     + "LEFT JOIN "
     + "plan_mantenimiento ON activo_has_plan_mantenimiento.plan_mantenimiento_id_plan_mantenimiento = plan_mantenimiento.id_plan_mantenimiento " 
+    + "INNER JOIN "
+    + "plan_mantenimiento_has_categoria_servicio ON plan_mantenimiento.id_plan_mantenimiento = plan_mantenimiento_has_categoria_servicio.plan_mantenimiento_id_plan_mantenimiento "
+	+ "INNER JOIN "
+	+ "categoria_servicio ON plan_mantenimiento_has_categoria_servicio.categoria_servicio_id_categoria_servicio = categoria_servicio.id_categoria_servicio "
     + "ORDER BY activo.id_activo DESC";
 
     private String command;
@@ -57,11 +69,25 @@ public class QueryThread implements Runnable {
             ResultSet resultado = instruccion.executeQuery(sql);
             //Paso 6 - Procesamos el resultado
             while(resultado.next()){ // while para procesar cada registro
+
+                //System.out.println(resultado);
+
                 //System.out.print("id_activo: " + resultado.getInt(1)); //getInt(1) para solicitadr el índice -> id_activo es el 1, id_vehiculo el 2 ...
-                //System.out.println(" id_vehiculo: " + resultado.getInt(2));
 
                 //System.out.println("id_activo: " + resultado.getInt(1) + " id_vehiculo: " + resultado.getInt(2));
-                System.out.println(
+
+                if(resultado.getBoolean(13) && !resultado.getBoolean(19)){
+                    System.out.println(
+                        "ACTIVO: " + resultado.getInt(1) +  " | " +
+                        "PLAN: " + resultado.getString(10) +  " | " +
+                        "CATEGORIA: " + resultado.getString(18) +  " | " +
+                        "INICIO: " + resultado.getString(14) +  " | " +
+                        "CADA: " + resultado.getString(15) +  " | " +
+                        "FRECUENCIA: " + resultado.getString(16)
+                    );
+                }
+
+                /*System.out.println(
                     "activo.id_activo: " + resultado.getInt(1) +  " | " +
                     " activo.id_vehiculo: " + resultado.getInt(2) +  " | " +
                     " activo.area_id_area: " + resultado.getInt(3) +  " | " + 
@@ -72,9 +98,18 @@ public class QueryThread implements Runnable {
                     " activo.anio: " + resultado.getInt(8) +  " | " +  
                     " plan_mantenimiento.id_plan_mantenimiento: " + resultado.getInt(9) +  " | " + 
                     " plan_mantenimiento.nombre: " + resultado.getString(10) +  " | " +  
-                    " activo.dado_de_baja: " + resultado.getBoolean(11));
+                    " plan_mantenimiento.por_hora: " + resultado.getBoolean(11) +  " | " + 
+                    " plan_mantenimiento.por_km: " + resultado.getBoolean(12) +  " | " + 
+                    " plan_mantenimiento.por_periodo: " + resultado.getBoolean(13) +  " | " + 
+                    " plan_mantenimiento_has_categoria_servicio.periodo_fecha: " + resultado.getString(14) +  " | " +  
+                    " plan_mantenimiento_has_categoria_servicio.periodo_cada: " + resultado.getInt(15) +  " | " +  
+                    " plan_mantenimiento_has_categoria_servicio.periodo_frecuencia: " + resultado.getString(16) +  " | " +  
+                    " categoria_servicio.id_categoria_servicio: " + resultado.getInt(17) +  " | " +  
+                    " categoria_servicio.nombre: " + resultado.getString(18) +  " | " +
+                    " activo.dado_de_baja: " + resultado.getBoolean(19));*/
 
             }
+
             //Cerramos cada objeto que hemos utilizado
             resultado.close();
             instruccion.close();
@@ -83,7 +118,7 @@ public class QueryThread implements Runnable {
             e.printStackTrace(System.out);
         }
 
-        processCommand();
+        //processCommand();
         System.out.println(Thread.currentThread().getName() + " Fin");
 
 
