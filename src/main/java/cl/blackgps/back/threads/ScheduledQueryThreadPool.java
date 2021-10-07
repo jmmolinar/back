@@ -8,9 +8,9 @@ public class ScheduledQueryThreadPool {
 
     public static void main(String[] args) {
 
-        int numDeHilos = Runtime.getRuntime().availableProcessors();
+        //int numDeHilos = Runtime.getRuntime().availableProcessors();
 
-        ScheduledExecutorService ser = Executors.newScheduledThreadPool(numDeHilos);
+        ScheduledExecutorService ser = Executors.newScheduledThreadPool(1);
         ser.schedule(new QueryThread("Hilo: " + Thread.currentThread().getId()), 1, TimeUnit.SECONDS);
         ser.scheduleAtFixedRate(new QueryThread("Hilo: " + Thread.currentThread().getId()), 1, 2, TimeUnit.SECONDS);
 
