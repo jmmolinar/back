@@ -104,15 +104,17 @@ public class QueryThread implements Runnable {
         //Para saber cuántos registros han sido insertados
         int registro = 0;
         int registroOrdenEstado = 0;
+        int registroOrdenCategoria = 0;
 
         try {
 
             // Paso 2 - Creamos el objeto de conexión a la base de datos
             Connection conexion = DriverManager.getConnection(url, "root", "123456");
-            // Paso 3 - Creamos un objeto Statement y el objeto PreparedStatement
+            // Paso 3 - Creamos un objeto Statement y el objetos PreparedStatement
             Statement instruccionActivos = conexion.createStatement();
             PreparedStatement instruccionOrden = conexion.prepareStatement(crearOrden);
             PreparedStatement instruccionOrdenHasEstado = conexion.prepareStatement(crearOrdenHasEstado);
+            PreparedStatement instruccionOrdenHasCategoria = conexion.prepareStatement(crearOrdeHasCategoria);
             // Paso 4 - Creamos el query
             // Paso 5 - Ejecución del query
             ResultSet resultado = instruccionActivos.executeQuery(consultarActivos);
@@ -137,12 +139,16 @@ public class QueryThread implements Runnable {
                     instruccionOrden.setString(1, currentDate()); //Asigno la fecha actual al índice 1 del INSERT
                     instruccionOrden.setInt(2, resultado.getInt(1)); //Asigno el id_activo del SELECT al indice 2 del INSERT
                     instruccionOrdenHasEstado.setString(1, currentDate()); //Asigno la fecha actual al índice 1 del INSERT de orden has estado
+                    instruccionOrdenHasCategoria.setInt(1, resultado.getInt(17)); //Asigno el id_categoria al indice 1 del INSERT de orden has categoria
+                    instruccionOrdenHasCategoria.setString(2, currentDate()); //Asigno la fecha actual al índice 2 del INSERT de orden has categoria
                     registro = instruccionOrden.executeUpdate(); // Ejecuto el INSERT de una nueva órden
                     registroOrdenEstado = instruccionOrdenHasEstado.executeUpdate(); // Ejecuto el INSERT de la relación en orden has estado
+                    registroOrdenCategoria = instruccionOrdenHasCategoria.executeUpdate(); // Ejecuto el INSERT de la relación en orden has categoria
                     //instruccionOrden.getMaxRows();
 
                     System.out.println(registro + " Nuevo registro creado en la tabla orden");
                     System.out.println(registroOrdenEstado + " Nuevo registro en Orden Has Estado");
+                    System.out.println(registroOrdenCategoria + " Nuevo registro en Orden Has Categoria");
 
                     /*System.out.println("Ejecutando query INSERT: " + crearOrden);
                     System.out.println("FECHA: " + currentDate());
