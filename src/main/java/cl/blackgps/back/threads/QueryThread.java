@@ -190,6 +190,7 @@ public class QueryThread implements Runnable {
             instruccionActivos.close();
             instruccionOrden.close();
             instruccionOrdenHasEstado.close();
+            instruccionOrdenHasCategoria.close();
             conexion.close();
         } catch (SQLException e) {
             e.printStackTrace(System.out);
