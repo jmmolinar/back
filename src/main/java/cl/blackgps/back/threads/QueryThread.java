@@ -81,7 +81,13 @@ public class QueryThread implements Runnable {
         String crearOrdenHasEstado = "INSERT INTO orden_has_estado "
         + "(orden_id_orden,estado_id_estado,id_usuario, fecha_asignado) " 
         + "VALUES "
-        + "(LAST_INSERT_ID(),1,2,?) ";
+        + "(LAST_INSERT_ID(),1,2,?) "; // --1? fecha_asignado // LAST_INSERT_ID() toma el id_orden recien creado
+
+        String crearOrdeHasCategoria = "INSERT INTO orden_has_categoria_servicio "
+        + "(orden_id_orden,categoria_servicio_id_categoria_servicio,costo,fecha_categoria_asignada,observacion_categoria) "
+        + "VALUES "
+        + "(LAST_INSERT_ID(),?,null,?,null) "; // --1? categoria_servicio_id_categoria_servicio
+        // --2? fecha_categoria_asignada
 
 
     private String command;
@@ -132,11 +138,11 @@ public class QueryThread implements Runnable {
                     instruccionOrden.setInt(2, resultado.getInt(1)); //Asigno el id_activo del SELECT al indice 2 del INSERT
                     instruccionOrdenHasEstado.setString(1, currentDate()); //Asigno la fecha actual al índice 1 del INSERT de orden has estado
                     registro = instruccionOrden.executeUpdate(); // Ejecuto el INSERT de una nueva órden
-                    registroOrdenEstado = instruccionOrdenHasEstado.executeUpdate();
+                    registroOrdenEstado = instruccionOrdenHasEstado.executeUpdate(); // Ejecuto el INSERT de la relación en orden has estado
                     //instruccionOrden.getMaxRows();
 
-                    System.out.println(registro + " Registro creado en la tabla orden");
-                    System.out.println(registroOrdenEstado + " Registro en Orden Has Estado");
+                    System.out.println(registro + " Nuevo registro creado en la tabla orden");
+                    System.out.println(registroOrdenEstado + " Nuevo registro en Orden Has Estado");
 
                     /*System.out.println("Ejecutando query INSERT: " + crearOrden);
                     System.out.println("FECHA: " + currentDate());
