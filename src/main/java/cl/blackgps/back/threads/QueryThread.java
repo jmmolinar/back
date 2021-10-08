@@ -61,15 +61,28 @@ public class QueryThread implements Runnable {
         + "ruta_adjunto_completado, "
         + "fecha_ruta_completado) "
         + "VALUES "
-        + "(?," // --1?
+        + "(?," // --1? fecha_creacion
         + "null, "
         + "null, "
         + "1, " // 1 es el Tipo Preventivo
-        + "?, " // --2?
+        + "?, " // --2? id_activo
         + "null, "
         + "null, "
         + "null, "
-        + "null)"; // Agregar relaciones con estado y categorías
+        + "null) ";
+
+        String guardarUltimoIdOrden = "SET @last_id_orden := LAST_INSERT_ID()";
+        String guardarUltimaFechaCreacionOrden = "SET @last_fecha_creacion_orden "
+        + ":= (SELECT orden.fecha_creacion FROM orden WHERE orden.id_orden = @last_id_orden)";
+
+        String obtenerUltimoIdOrden = "SELECT @last_id_orden";
+        String obtenerUltimaFechaCreacionOrden = "SELECT @last_fecha_creacion_orden";
+        
+        String crearOrdenHasEstado = "INSERT INTO orden_has_estado "
+        + "(orden_id_orden,estado_id_estado,id_usuario, fecha_asignado) " 
+        + "VALUES "
+        + "(LAST_INSERT_ID(),1,2,?) ";
+
 
     private String command;
 
@@ -83,20 +96,21 @@ public class QueryThread implements Runnable {
         System.out.println(Thread.currentThread().getName() + " Inicio = " + command);
 
         //Para saber cuántos registros han sido insertados
-        int rows = 0;
+        int registro = 0;
+        int registroOrdenEstado = 0;
 
         try {
 
             // Paso 2 - Creamos el objeto de conexión a la base de datos
             Connection conexion = DriverManager.getConnection(url, "root", "123456");
             // Paso 3 - Creamos un objeto Statement y el objeto PreparedStatement
-            Statement instruccion = conexion.createStatement();
-            PreparedStatement stmt = conexion.prepareStatement(crearOrden);
+            Statement instruccionActivos = conexion.createStatement();
+            PreparedStatement instruccionOrden = conexion.prepareStatement(crearOrden);
+            PreparedStatement instruccionOrdenHasEstado = conexion.prepareStatement(crearOrdenHasEstado);
             // Paso 4 - Creamos el query
-            // String sql = "SELECT id_activo, id_vehiculo FROM activo";
-            String sql = consultarActivos;
             // Paso 5 - Ejecución del query
-            ResultSet resultado = instruccion.executeQuery(sql);
+            ResultSet resultado = instruccionActivos.executeQuery(consultarActivos);
+            
             // Paso 6 - Procesamos el resultado
 
             while (resultado.next()) { // while para procesar cada registro
@@ -110,20 +124,25 @@ public class QueryThread implements Runnable {
                         "CATEGORIA: " + resultado.getString(18) + " | " + 
                         "INICIO: " + resultado.getString(14) + " | " + 
                         "CADA: " + resultado.getString(15) + " | " + 
-                        "FRECUENCIA: " + resultado.getString(16) + " | " + 
-                        "FECHA ACTUAL: " + currentDate()
+                        "FRECUENCIA: " + resultado.getString(16)
                     );
 
-                    
-                    stmt.setString(1, currentDate()); //Asigno la fecha actual al índice 1 del INSERT
-                    stmt.setInt(2, resultado.getInt(1)); //Asigno el id_activo del SELECT al indice 2 del INSERT
+
+                    instruccionOrden.setString(1, currentDate()); //Asigno la fecha actual al índice 1 del INSERT
+                    instruccionOrden.setInt(2, resultado.getInt(1)); //Asigno el id_activo del SELECT al indice 2 del INSERT
+                    instruccionOrdenHasEstado.setString(1, currentDate()); //Asigno la fecha actual al índice 1 del INSERT de orden has estado
+                    registro = instruccionOrden.executeUpdate(); // Ejecuto el INSERT de una nueva órden
+                    registroOrdenEstado = instruccionOrdenHasEstado.executeUpdate();
+                    //instruccionOrden.getMaxRows();
+
+                    System.out.println(registro + " Registro creado en la tabla orden");
+                    System.out.println(registroOrdenEstado + " Registro en Orden Has Estado");
 
                     /*System.out.println("Ejecutando query INSERT: " + crearOrden);
                     System.out.println("FECHA: " + currentDate());
                     System.out.println("ID-ACTIVO: " + resultado.getInt(1));*/
 
-                    rows = stmt.executeUpdate(); // Ejecuto el INSERT de una nueva órden
-                    System.out.println(rows + " Registro creado en la tabla orden");
+                    
 
                 }
 
@@ -156,8 +175,9 @@ public class QueryThread implements Runnable {
 
             // Cerramos cada objeto que hemos utilizado
             resultado.close();
-            instruccion.close();
-            stmt.close();
+            instruccionActivos.close();
+            instruccionOrden.close();
+            instruccionOrdenHasEstado.close();
             conexion.close();
         } catch (SQLException e) {
             e.printStackTrace(System.out);
