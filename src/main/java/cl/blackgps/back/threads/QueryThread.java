@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -122,95 +123,130 @@ public class QueryThread implements Runnable {
             // Paso 6 - Procesamos el resultado
 
             int bandera = 0; //Para controlar la creación de una orden por activo
+            
+            //Para controlar la creación de ordenes según los datos de las categorías
+            //que están en planes por período
+            String fechaInicialCategoria = "";
+            int cadaCategoria = 0;
+            String frecuenciaCategoria = "";
+            //int incrementoDias = 0;
 
-            while (resultado.next()) { // while para procesar cada registro
+            while (resultado.next()) { // while para procesar cada registro de consultarActivos
 
+                //CREACIÓN AUTOMÁTICA DE ÓRDENES POR PERIODOS
+                //EJECUTANDO ESTE RUN UNA VEZ POR DÍA
                 //Si es por periodo - indice 13 && si no esta dado de baja - indice 19
                 if (resultado.getBoolean(13) && !resultado.getBoolean(19)) {
 
-                    //Impresión de algunos datos para verificar
-                    System.out.println(
-                        "ACTIVO: " + resultado.getInt(1) + " | " + 
-                        "VEHÍCULO: " + resultado.getInt(2) + " | " + 
-                        "PLAN: " + resultado.getString(10) + " | " + 
-                        "CATEGORIA: " + resultado.getString(18) + " | " + 
-                        "INICIO: " + resultado.getString(14) + " | " + 
-                        "CADA: " + resultado.getString(15) + " | " + 
-                        "FRECUENCIA: " + resultado.getString(16)
-                    );
 
-                    //Si la bandera es distinto del Id del activo actual crea la orden y la orden_has_estado
-                    if(bandera != resultado.getInt(1)){
+                    //Verificando fecha inicial de la categoría
+                    fechaInicialCategoria = resultado.getString(14); //El indice 14 de la consulta
+                    cadaCategoria = resultado.getInt(15);
+                    frecuenciaCategoria = resultado.getString(16);
 
-                        //Creación orden
-                        instruccionOrden.setString(1, currentDate()); //Asigno la fecha actual al índice 1 del INSERT
-                        instruccionOrden.setInt(2, resultado.getInt(1)); //Asigno el id_activo del SELECT al indice 2 del INSERT
-                        
-                        //Creación orden_has_estado
-                        //orden_id_orden para registrar en orden_has_estado se obtienen de la consulta con LAST_INSERT_ID()
-                        //LAST_INSERT_ID() toma el último id creado que es el de la orden
-                        instruccionOrdenHasEstado.setString(1, currentDate()); //Asigno la fecha actual al índice 1 del INSERT de orden has estado
-                        
-                        //Ejecución de INSERT de orden y orden_has_estado
-                        registro = instruccionOrden.executeUpdate(); // Ejecuto el INSERT de una nueva órden
-                        registroOrdenEstado = instruccionOrdenHasEstado.executeUpdate(); // Ejecuto el INSERT de la relación en orden_has_estado
+                    LocalDate fechaInicialCategoriaParseDate = LocalDate.parse(fechaInicialCategoria, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-                        System.out.println(registro + " Nuevo registro creado en la tabla orden");
-                        System.out.println(registroOrdenEstado + " Nuevo registro en Orden Has Estado");
+                    while(fechaInicialCategoriaParseDate.isBefore(LocalDate.parse(currentDate(),DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                            || fechaInicialCategoriaParseDate.isEqual(LocalDate.parse(currentDate(),DateTimeFormatter.ofPattern("yyyy-MM-dd")))){
+                            
 
-                        //Asigno el valor del activo_id_activo actual a la bandera para que no repita
-                        //la creación de órdenes por un mismo activo
-                        bandera = resultado.getInt(1);
+                        if(frecuenciaCategoria == "Días"){
+                             //incrementoDias = cadaCategoria;
 
-                    }
+                            fechaInicialCategoriaParseDate.plusDays(cadaCategoria);
 
-                    //instruccionOrden.setString(1, currentDate()); //Asigno la fecha actual al índice 1 del INSERT
-                    //instruccionOrden.setInt(2, resultado.getInt(1)); //Asigno el id_activo del SELECT al indice 2 del INSERT
-                    //instruccionOrdenHasEstado.setString(1, currentDate()); //Asigno la fecha actual al índice 1 del INSERT de orden has estado
-                    
-                    //Cración de orden_has_categoria_servicio
-                    //Acá si se crean en cada iteración del WHILE dado que la sentencia de consultarActivos
-                    //obtiene todas las categorías
-                    //orden_id_orden para registrar en orden_has_categoria_servicio se obtiene de la consulta con LAST_INSERT_ID()
-                    //LAST_INSERT_ID() toma el último id creado que es el de la orden
-                    instruccionOrdenHasCategoria.setInt(1, resultado.getInt(17)); //Asigno el id_categoria al indice 1 del INSERT de orden has categoria
-                    instruccionOrdenHasCategoria.setString(2, currentDate()); //Asigno la fecha actual al índice 2 del INSERT de orden has categoria
-                    
-                    //Ejecución de INSERT de orden_has_categoria_servicio
-                    registroOrdenCategoria = instruccionOrdenHasCategoria.executeUpdate(); // Ejecuto el INSERT de la relación en orden has categoria
-                    
-                    System.out.println(registroOrdenCategoria + " Nuevo registro en Orden Has Categoria");
+                            if(fechaInicialCategoriaParseDate.isEqual(LocalDate.parse(currentDate(),DateTimeFormatter.ofPattern("yyyy-MM-dd")))){
 
-                    /*System.out.println("Ejecutando query INSERT: " + crearOrden);
-                    System.out.println("FECHA: " + currentDate());
-                    System.out.println("ID-ACTIVO: " + resultado.getInt(1));*/
+                                //Impresión de algunos datos para verificar
+                                printInfo(resultado.getInt(1), resultado.getInt(2), resultado.getString(10), 
+                                resultado.getString(18), resultado.getString(14), resultado.getInt(15), resultado.getString(16));
+
+                                //Crear orden y orden_has_categoria
+                                metodoCrearOrdenYOrdenHasEstado(bandera, resultado.getInt(1), instruccionOrden,
+                                    instruccionOrdenHasEstado, registro, registroOrdenEstado);
+
+                                //Crear orden_has_categoria_servicio
+                                metodoCrearOrdenHasCategoria(instruccionOrdenHasCategoria, resultado.getInt(17), 
+                                    registroOrdenCategoria);
+
+                            }
+
+                        }
+
+                        if(frecuenciaCategoria == "Semanas"){
+                            //incrementoDias = cadaCategoria * 7;
+
+                            fechaInicialCategoriaParseDate.plusWeeks(cadaCategoria);
+
+                            if(fechaInicialCategoriaParseDate.isEqual(LocalDate.parse(currentDate(),DateTimeFormatter.ofPattern("yyyy-MM-dd")))){
+
+                                //Impresión de algunos datos para verificar
+                                printInfo(resultado.getInt(1), resultado.getInt(2), resultado.getString(10), 
+                                resultado.getString(18), resultado.getString(14), resultado.getInt(15), resultado.getString(16));
+
+                                //Crear orden y orden_has_categoria
+                                metodoCrearOrdenYOrdenHasEstado(bandera, resultado.getInt(1), instruccionOrden,
+                                    instruccionOrdenHasEstado, registro, registroOrdenEstado);
+
+                                //Crear orden_has_categoria_servicio
+                                metodoCrearOrdenHasCategoria(instruccionOrdenHasCategoria, resultado.getInt(17), 
+                                    registroOrdenCategoria);
+
+                            }
+
+                        }
+
+                        if(frecuenciaCategoria == "Meses"){
+                            //incrementoDias = cadaCategoria * 30;
+
+                            fechaInicialCategoriaParseDate.plusMonths(cadaCategoria);
+
+                            if(fechaInicialCategoriaParseDate.isEqual(LocalDate.parse(currentDate(),DateTimeFormatter.ofPattern("yyyy-MM-dd")))){
+
+                                //Impresión de algunos datos para verificar
+                                printInfo(resultado.getInt(1), resultado.getInt(2), resultado.getString(10), 
+                                resultado.getString(18), resultado.getString(14), resultado.getInt(15), resultado.getString(16));
+
+                                //Crear orden y orden_has_categoria
+                                metodoCrearOrdenYOrdenHasEstado(bandera, resultado.getInt(1), instruccionOrden,
+                                    instruccionOrdenHasEstado, registro, registroOrdenEstado);
+
+                                //Crear orden_has_categoria_servicio
+                                metodoCrearOrdenHasCategoria(instruccionOrdenHasCategoria, resultado.getInt(17), 
+                                    registroOrdenCategoria);
+
+                            }
+
+                        }
+
+                        if(frecuenciaCategoria == "Años"){
+                            //incrementoDias = cadaCategoria * 365;
+
+                            fechaInicialCategoriaParseDate.plusYears(cadaCategoria);
+
+                            if(fechaInicialCategoriaParseDate.isEqual(LocalDate.parse(currentDate(),DateTimeFormatter.ofPattern("yyyy-MM-dd")))){
+
+                                //Impresión de algunos datos para verificar
+                                printInfo(resultado.getInt(1), resultado.getInt(2), resultado.getString(10), 
+                                resultado.getString(18), resultado.getString(14), resultado.getInt(15), resultado.getString(16));
+
+                                //Crear orden y orden_has_categoria
+                                metodoCrearOrdenYOrdenHasEstado(bandera, resultado.getInt(1), instruccionOrden,
+                                    instruccionOrdenHasEstado, registro, registroOrdenEstado);
+
+                                //Crear orden_has_categoria_servicio
+                                metodoCrearOrdenHasCategoria(instruccionOrdenHasCategoria, resultado.getInt(17), 
+                                    registroOrdenCategoria);
+
+                            }
+
+
+                        }
+
+
+                    }  
 
                 }
-
-                /*
-                 * System.out.println( "activo.id_activo: " + resultado.getInt(1) + " | " +
-                 * " activo.id_vehiculo: " + resultado.getInt(2) + " | " +
-                 * " activo.area_id_area: " + resultado.getInt(3) + " | " +
-                 * " activo.bodega_activos_id_bodega_activos: " + resultado.getInt(4) + " | " +
-                 * " BODEGA: " + resultado.getString(5) + " | " +
-                 * " activo.tipo_activo_id_tipo_activo: " + resultado.getInt(6) + " | " +
-                 * " TIPO: " + resultado.getString(7) + " | " + " activo.anio: " +
-                 * resultado.getInt(8) + " | " + " plan_mantenimiento.id_plan_mantenimiento: " +
-                 * resultado.getInt(9) + " | " + " plan_mantenimiento.nombre: " +
-                 * resultado.getString(10) + " | " + " plan_mantenimiento.por_hora: " +
-                 * resultado.getBoolean(11) + " | " + " plan_mantenimiento.por_km: " +
-                 * resultado.getBoolean(12) + " | " + " plan_mantenimiento.por_periodo: " +
-                 * resultado.getBoolean(13) + " | " +
-                 * " plan_mantenimiento_has_categoria_servicio.periodo_fecha: " +
-                 * resultado.getString(14) + " | " +
-                 * " plan_mantenimiento_has_categoria_servicio.periodo_cada: " +
-                 * resultado.getInt(15) + " | " +
-                 * " plan_mantenimiento_has_categoria_servicio.periodo_frecuencia: " +
-                 * resultado.getString(16) + " | " +
-                 * " categoria_servicio.id_categoria_servicio: " + resultado.getInt(17) + " | "
-                 * + " categoria_servicio.nombre: " + resultado.getString(18) + " | " +
-                 * " activo.dado_de_baja: " + resultado.getBoolean(19));
-                 */
 
             }
 
@@ -230,6 +266,7 @@ public class QueryThread implements Runnable {
 
     }
 
+    //Lapso de tiempo antes de la siguiente ejecución del Scheduled, solo a modo de prueba
     private void processCommand() {
         try {
             Thread.sleep(5000);
@@ -238,10 +275,88 @@ public class QueryThread implements Runnable {
         }
     }
 
+    //Obtener la fecha actual como String
     private String currentDate(){
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         //System.out.println("yyyy-MM-dd HH:mm:ss-> "+dtf.format(LocalDateTime.now()));
         return dtf.format(LocalDateTime.now());
     }
+
+    //Impresión de algunos datos para verificar
+    private void printInfo(int a, int b, String c, String d, String e, int f, String g){
+        System.out.println(
+            "ACTIVO: " + a + " | " + 
+            "VEHÍCULO: " + b + " | " + 
+            "PLAN: " + c + " | " + 
+            "CATEGORIA: " + d + " | " + 
+            "INICIO: " + e + " | " + 
+            "CADA: " + f + " | " + 
+            "FRECUENCIA: " + g
+        );
+
+        
+        /*System.out.println(
+            "ACTIVO: " + resultado.getInt(1) + " | " + 
+            "VEHÍCULO: " + resultado.getInt(2) + " | " + 
+            "PLAN: " + resultado.getString(10) + " | " + 
+            "CATEGORIA: " + resultado.getString(18) + " | " + 
+            "INICIO: " + resultado.getString(14) + " | " + 
+            "CADA: " + resultado.getInt(15) + " | " + 
+            "FRECUENCIA: " + resultado.getString(16)
+        );*/
+    }
+
+    //Creación de Orden y Orden_has_estado
+    private void metodoCrearOrdenYOrdenHasEstado(int bandera, int activo, PreparedStatement instruccionOrden,
+                        PreparedStatement instruccionOrdenHasEstado, int registro, int registroOrdenEstado) throws SQLException{
+
+        //Si la bandera es distinto del Id del activo actual crea la orden y la orden_has_estado
+        if(bandera != activo){
+
+            //Creación orden
+            instruccionOrden.setString(1, currentDate()); //Asigno la fecha actual al índice 1 del INSERT
+            instruccionOrden.setInt(2, activo); //Asigno el id_activo del SELECT al indice 2 del INSERT
+            
+            //Creación orden_has_estado
+            //orden_id_orden para registrar en orden_has_estado se obtienen de la consulta con LAST_INSERT_ID()
+            //LAST_INSERT_ID() toma el último id creado que es el de la orden
+            instruccionOrdenHasEstado.setString(1, currentDate()); //Asigno la fecha actual al índice 1 del INSERT de orden has estado
+            
+            //Ejecución de INSERT de orden y orden_has_estado
+            registro = instruccionOrden.executeUpdate(); // Ejecuto el INSERT de una nueva órden
+            registroOrdenEstado = instruccionOrdenHasEstado.executeUpdate(); // Ejecuto el INSERT de la relación en orden_has_estado
+
+            System.out.println(registro + " Nuevo registro creado en la tabla orden");
+            System.out.println(registroOrdenEstado + " Nuevo registro en Orden Has Estado");
+
+            //Asigno el valor del activo_id_activo actual a la bandera para que no repita
+            //la creación de órdenes por un mismo activo
+            bandera = activo;
+
+        }
+
+    };
+
+    //Creacion de Orden_Has_Categoria_Servicio
+    private void metodoCrearOrdenHasCategoria(PreparedStatement instruccionOrdenHasCategoria, int categoria, int registroOrdenCategoria) throws SQLException{
+
+        //Cración de orden_has_categoria_servicio
+        //Acá si se crean en cada iteración del WHILE de resultado.next() dado que la sentencia de consultarActivos
+        //obtiene todas las categorías
+        //orden_id_orden para registrar en orden_has_categoria_servicio se obtiene de la consulta con LAST_INSERT_ID()
+        //LAST_INSERT_ID() toma el último id creado que es el de la orden
+        instruccionOrdenHasCategoria.setInt(1, categoria); //Asigno el id_categoria al indice 1 del INSERT de orden has categoria
+        instruccionOrdenHasCategoria.setString(2, currentDate()); //Asigno la fecha actual al índice 2 del INSERT de orden has categoria
+                    
+        //Ejecución de INSERT de orden_has_categoria_servicio
+        registroOrdenCategoria = instruccionOrdenHasCategoria.executeUpdate(); // Ejecuto el INSERT de la relación en orden has categoria
+                    
+        System.out.println(registroOrdenCategoria + " Nuevo registro en Orden Has Categoria");
+
+    }
+
+                    
+
+                    
 
 }
