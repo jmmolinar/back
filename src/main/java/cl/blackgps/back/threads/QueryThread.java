@@ -121,10 +121,14 @@ public class QueryThread implements Runnable {
             
             // Paso 6 - Procesamos el resultado
 
+            int bandera = 0; //Para controlar la creación de una orden por activo
+
             while (resultado.next()) { // while para procesar cada registro
 
+                //Si es por periodo - indice 13 && si no esta dado de baja - indice 19
                 if (resultado.getBoolean(13) && !resultado.getBoolean(19)) {
 
+                    //Impresión de algunos datos para verificar
                     System.out.println(
                         "ACTIVO: " + resultado.getInt(1) + " | " + 
                         "VEHÍCULO: " + resultado.getInt(2) + " | " + 
@@ -135,26 +139,51 @@ public class QueryThread implements Runnable {
                         "FRECUENCIA: " + resultado.getString(16)
                     );
 
+                    //Si la bandera es distinto del Id del activo actual crea la orden y la orden_has_estado
+                    if(bandera != resultado.getInt(1)){
 
-                    instruccionOrden.setString(1, currentDate()); //Asigno la fecha actual al índice 1 del INSERT
-                    instruccionOrden.setInt(2, resultado.getInt(1)); //Asigno el id_activo del SELECT al indice 2 del INSERT
-                    instruccionOrdenHasEstado.setString(1, currentDate()); //Asigno la fecha actual al índice 1 del INSERT de orden has estado
+                        //Creación orden
+                        instruccionOrden.setString(1, currentDate()); //Asigno la fecha actual al índice 1 del INSERT
+                        instruccionOrden.setInt(2, resultado.getInt(1)); //Asigno el id_activo del SELECT al indice 2 del INSERT
+                        
+                        //Creación orden_has_estado
+                        //orden_id_orden para registrar en orden_has_estado se obtienen de la consulta con LAST_INSERT_ID()
+                        //LAST_INSERT_ID() toma el último id creado que es el de la orden
+                        instruccionOrdenHasEstado.setString(1, currentDate()); //Asigno la fecha actual al índice 1 del INSERT de orden has estado
+                        
+                        //Ejecución de INSERT de orden y orden_has_estado
+                        registro = instruccionOrden.executeUpdate(); // Ejecuto el INSERT de una nueva órden
+                        registroOrdenEstado = instruccionOrdenHasEstado.executeUpdate(); // Ejecuto el INSERT de la relación en orden_has_estado
+
+                        System.out.println(registro + " Nuevo registro creado en la tabla orden");
+                        System.out.println(registroOrdenEstado + " Nuevo registro en Orden Has Estado");
+
+                        //Asigno el valor del activo_id_activo actual a la bandera para que no repita
+                        //la creación de órdenes por un mismo activo
+                        bandera = resultado.getInt(1);
+
+                    }
+
+                    //instruccionOrden.setString(1, currentDate()); //Asigno la fecha actual al índice 1 del INSERT
+                    //instruccionOrden.setInt(2, resultado.getInt(1)); //Asigno el id_activo del SELECT al indice 2 del INSERT
+                    //instruccionOrdenHasEstado.setString(1, currentDate()); //Asigno la fecha actual al índice 1 del INSERT de orden has estado
+                    
+                    //Cración de orden_has_categoria_servicio
+                    //Acá si se crean en cada iteración del WHILE dado que la sentencia de consultarActivos
+                    //obtiene todas las categorías
+                    //orden_id_orden para registrar en orden_has_categoria_servicio se obtiene de la consulta con LAST_INSERT_ID()
+                    //LAST_INSERT_ID() toma el último id creado que es el de la orden
                     instruccionOrdenHasCategoria.setInt(1, resultado.getInt(17)); //Asigno el id_categoria al indice 1 del INSERT de orden has categoria
                     instruccionOrdenHasCategoria.setString(2, currentDate()); //Asigno la fecha actual al índice 2 del INSERT de orden has categoria
-                    registro = instruccionOrden.executeUpdate(); // Ejecuto el INSERT de una nueva órden
-                    registroOrdenEstado = instruccionOrdenHasEstado.executeUpdate(); // Ejecuto el INSERT de la relación en orden has estado
+                    
+                    //Ejecución de INSERT de orden_has_categoria_servicio
                     registroOrdenCategoria = instruccionOrdenHasCategoria.executeUpdate(); // Ejecuto el INSERT de la relación en orden has categoria
-                    //instruccionOrden.getMaxRows();
-
-                    System.out.println(registro + " Nuevo registro creado en la tabla orden");
-                    System.out.println(registroOrdenEstado + " Nuevo registro en Orden Has Estado");
+                    
                     System.out.println(registroOrdenCategoria + " Nuevo registro en Orden Has Categoria");
 
                     /*System.out.println("Ejecutando query INSERT: " + crearOrden);
                     System.out.println("FECHA: " + currentDate());
                     System.out.println("ID-ACTIVO: " + resultado.getInt(1));*/
-
-                    
 
                 }
 
