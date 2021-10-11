@@ -11,8 +11,8 @@ public class ScheduledQueryThreadPool {
         //int numDeHilos = Runtime.getRuntime().availableProcessors();
 
         ScheduledExecutorService ser = Executors.newScheduledThreadPool(1);
-        ser.schedule(new QueryThreadOld("Hilo: " + Thread.currentThread().getId()), 1, TimeUnit.SECONDS);
-        ser.scheduleAtFixedRate(new QueryThreadOld("Hilo: " + Thread.currentThread().getId()), 1, 2, TimeUnit.SECONDS);
+        ser.schedule(new QueryThread("Hilo: " + Thread.currentThread().getId()), 1, TimeUnit.SECONDS);
+        ser.scheduleAtFixedRate(new QueryThread("Hilo: " + Thread.currentThread().getId()), 1, 4, TimeUnit.SECONDS);
 
         System.out.println("Finalizados todos los hilos");
     }

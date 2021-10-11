@@ -131,31 +131,69 @@ public class QueryThread implements Runnable {
             String frecuenciaCategoria = "";
             //int incrementoDias = 0;
 
+            LocalDate fechaInicialCategoriaParseDate = LocalDate.now();
+            LocalDate fechaActual = LocalDate.now();
+
             while (resultado.next()) { // while para procesar cada registro de consultarActivos
 
                 //CREACIÓN AUTOMÁTICA DE ÓRDENES POR PERIODOS
-                //EJECUTANDO ESTE RUN UNA VEZ POR DÍA
+                //EJECUTANDO ESTE RUN UNA VEZ POR DÍA PARA EVITAR REPETICIÓN DE CREACIÓN DE ÓRDENES
                 //Si es por periodo - indice 13 && si no esta dado de baja - indice 19
                 if (resultado.getBoolean(13) && !resultado.getBoolean(19)) {
 
-
                     //Verificando fecha inicial de la categoría
                     fechaInicialCategoria = resultado.getString(14); //El indice 14 de la consulta
+                    fechaInicialCategoria = fechaInicialCategoria.substring(0, 10);
+
                     cadaCategoria = resultado.getInt(15);
                     frecuenciaCategoria = resultado.getString(16);
+                    fechaInicialCategoriaParseDate = LocalDate.parse(fechaInicialCategoria);
+                    fechaActual = LocalDate.parse(currentDate().substring(0, 10));
 
-                    LocalDate fechaInicialCategoriaParseDate = LocalDate.parse(fechaInicialCategoria, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                    if(frecuenciaCategoria.equals("Días")){
+                        //incrementoDias = cadaCategoria;
 
-                    while(fechaInicialCategoriaParseDate.isBefore(LocalDate.parse(currentDate(),DateTimeFormatter.ofPattern("yyyy-MM-dd")))
-                            || fechaInicialCategoriaParseDate.isEqual(LocalDate.parse(currentDate(),DateTimeFormatter.ofPattern("yyyy-MM-dd")))){
-                            
+                        System.out.println("");
+                        System.out.println("POR DÍAS");
 
-                        if(frecuenciaCategoria == "Días"){
-                             //incrementoDias = cadaCategoria;
+                        for (LocalDate date = fechaInicialCategoriaParseDate; date.isBefore(fechaActual) || date.equals(fechaActual); date = date.plusDays(cadaCategoria)){
 
-                            fechaInicialCategoriaParseDate.plusDays(cadaCategoria);
+                            //System.out.println("Entre al FOR en Días");
 
-                            if(fechaInicialCategoriaParseDate.isEqual(LocalDate.parse(currentDate(),DateTimeFormatter.ofPattern("yyyy-MM-dd")))){
+                            if(date.isEqual(fechaActual)){
+
+                                //Impresión de algunos datos para verificar
+                                printInfo(resultado.getInt(1), resultado.getInt(2), resultado.getString(10), 
+                                    resultado.getString(18), resultado.getString(14), resultado.getInt(15), resultado.getString(16));
+
+                                //Crear orden y orden_has_categoria
+                                metodoCrearOrdenYOrdenHasEstado(bandera, resultado.getInt(1), instruccionOrden,
+                                    instruccionOrdenHasEstado, registro, registroOrdenEstado);
+
+                                //Crear orden_has_categoria_servicio
+                                metodoCrearOrdenHasCategoria(instruccionOrdenHasCategoria, resultado.getInt(17), 
+                                    registroOrdenCategoria);
+
+                            }
+
+                            System.out.println("Iteración en FOR - CADA:" + cadaCategoria + " DÍAS - FECHA: " + date);
+
+                        }
+
+                    }
+
+                        
+                    if(frecuenciaCategoria.equals("Semanas")){
+                        //incrementoDias = cadaCategoria * 7;
+
+                        System.out.println("");
+                        System.out.println("POR SEMANAS");
+
+                        for (LocalDate date = fechaInicialCategoriaParseDate; date.isBefore(fechaActual) || date.equals(fechaActual); date = date.plusWeeks(cadaCategoria)){
+
+                            //System.out.println("Entre al FOR en SEMANAS");
+
+                            if(date.isEqual(fechaActual)){
 
                                 //Impresión de algunos datos para verificar
                                 printInfo(resultado.getInt(1), resultado.getInt(2), resultado.getString(10), 
@@ -171,14 +209,23 @@ public class QueryThread implements Runnable {
 
                             }
 
+                            System.out.println("Iteración en FOR - CADA:" + cadaCategoria + " SEMANAS - FECHA: " + date);
+
                         }
 
-                        if(frecuenciaCategoria == "Semanas"){
-                            //incrementoDias = cadaCategoria * 7;
+                    }
 
-                            fechaInicialCategoriaParseDate.plusWeeks(cadaCategoria);
+                    if(frecuenciaCategoria.equals("Meses")){
+                        //incrementoDias = cadaCategoria * 30;
 
-                            if(fechaInicialCategoriaParseDate.isEqual(LocalDate.parse(currentDate(),DateTimeFormatter.ofPattern("yyyy-MM-dd")))){
+                        System.out.println("");
+                        System.out.println("POR MESES");
+
+                        for (LocalDate date = fechaInicialCategoriaParseDate; date.isBefore(fechaActual) || date.equals(fechaActual); date = date.plusMonths(cadaCategoria)){
+
+                            //System.out.println("Entre al FOR en MESES");
+
+                            if(date.isEqual(fechaActual)){
 
                                 //Impresión de algunos datos para verificar
                                 printInfo(resultado.getInt(1), resultado.getInt(2), resultado.getString(10), 
@@ -194,14 +241,23 @@ public class QueryThread implements Runnable {
 
                             }
 
+                            System.out.println("Iteración en FOR - CADA:" + cadaCategoria + " MESES - FECHA: " + date);
+
                         }
 
-                        if(frecuenciaCategoria == "Meses"){
-                            //incrementoDias = cadaCategoria * 30;
+                    }
 
-                            fechaInicialCategoriaParseDate.plusMonths(cadaCategoria);
+                    if(frecuenciaCategoria.equals("Años")){
+                        //incrementoDias = cadaCategoria * 365;
 
-                            if(fechaInicialCategoriaParseDate.isEqual(LocalDate.parse(currentDate(),DateTimeFormatter.ofPattern("yyyy-MM-dd")))){
+                        System.out.println("");
+                        System.out.println("POR AÑOS");
+
+                        for (LocalDate date = fechaInicialCategoriaParseDate; date.isBefore(fechaActual) || date.equals(fechaActual); date = date.plusYears(cadaCategoria)){
+
+                            //System.out.println("Entre al FOR en AÑOS");
+
+                            if(date.isEqual(fechaActual)){
 
                                 //Impresión de algunos datos para verificar
                                 printInfo(resultado.getInt(1), resultado.getInt(2), resultado.getString(10), 
@@ -217,34 +273,11 @@ public class QueryThread implements Runnable {
 
                             }
 
-                        }
-
-                        if(frecuenciaCategoria == "Años"){
-                            //incrementoDias = cadaCategoria * 365;
-
-                            fechaInicialCategoriaParseDate.plusYears(cadaCategoria);
-
-                            if(fechaInicialCategoriaParseDate.isEqual(LocalDate.parse(currentDate(),DateTimeFormatter.ofPattern("yyyy-MM-dd")))){
-
-                                //Impresión de algunos datos para verificar
-                                printInfo(resultado.getInt(1), resultado.getInt(2), resultado.getString(10), 
-                                resultado.getString(18), resultado.getString(14), resultado.getInt(15), resultado.getString(16));
-
-                                //Crear orden y orden_has_categoria
-                                metodoCrearOrdenYOrdenHasEstado(bandera, resultado.getInt(1), instruccionOrden,
-                                    instruccionOrdenHasEstado, registro, registroOrdenEstado);
-
-                                //Crear orden_has_categoria_servicio
-                                metodoCrearOrdenHasCategoria(instruccionOrdenHasCategoria, resultado.getInt(17), 
-                                    registroOrdenCategoria);
-
-                            }
-
+                            System.out.println("Iteración en FOR - CADA:" + cadaCategoria + " AÑOS - FECHA: " + date);
 
                         }
 
-
-                    }  
+                    }
 
                 }
 
