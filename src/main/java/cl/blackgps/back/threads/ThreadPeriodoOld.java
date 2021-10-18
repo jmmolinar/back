@@ -9,7 +9,7 @@ import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class QueryThreadOld implements Runnable {
+public class ThreadPeriodoOld implements Runnable {
 
     // Paso 1 - Cadena de conexión a mysql
     String url = "jdbc:mysql://localhost:3306/modulo_mantenimiento?useSSL=false&serverTimezone=UTC";
@@ -92,7 +92,7 @@ public class QueryThreadOld implements Runnable {
 
     private String command;
 
-    public QueryThreadOld(String command) {
+    public ThreadPeriodoOld(String command) {
         this.command = command;
     }
 
