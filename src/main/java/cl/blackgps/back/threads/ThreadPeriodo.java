@@ -110,7 +110,7 @@ public class ThreadPeriodo implements Runnable {
         try {
 
             // Paso 2 - Creamos el objeto de conexión a la base de datos
-            Connection conexion = DriverManager.getConnection(url, "root", "123456");
+            Connection conexion = DriverManager.getConnection(url, "developer", "Blackgps+2021");
             // Paso 3 - Creamos un objeto Statement y el objetos PreparedStatement
             Statement instruccionActivos = conexion.createStatement();
             PreparedStatement instruccionOrden = conexion.prepareStatement(crearOrden);
