@@ -39,8 +39,8 @@ public class TallerServicio implements Serializable{
     @Column(name = "longitud")
     private Float longitud;
 
-    @Column(name = "id_geocerca_cabecera")
-    private int idGeocercaCabecera;
+    @Column(name = "geocerca_cabecera_id_geocerca_cabecera")
+    private int geocercaCabeceraIdGeocercaCabecera;
 
 
 
@@ -48,7 +48,7 @@ public class TallerServicio implements Serializable{
     }
 
 
-    public TallerServicio(int idTallerServicio, String nombre, String region, String comuna, String calle, int numero, Float latitud, Float longitud, int idGeocercaCabecera) {
+    public TallerServicio(int idTallerServicio, String nombre, String region, String comuna, String calle, int numero, Float latitud, Float longitud, int geocercaCabeceraIdGeocercaCabecera) {
         this.idTallerServicio = idTallerServicio;
         this.nombre = nombre;
         this.region = region;
@@ -57,7 +57,7 @@ public class TallerServicio implements Serializable{
         this.numero = numero;
         this.latitud = latitud;
         this.longitud = longitud;
-        this.idGeocercaCabecera = idGeocercaCabecera;
+        this.geocercaCabeceraIdGeocercaCabecera = geocercaCabeceraIdGeocercaCabecera;
     }
 
 
@@ -125,12 +125,12 @@ public class TallerServicio implements Serializable{
         this.longitud = longitud;
     }
 
-    public int getIdGeocercaCabecera() {
-        return this.idGeocercaCabecera;
+    public int getGeocercaCabeceraIdGeocercaCabecera() {
+        return this.geocercaCabeceraIdGeocercaCabecera;
     }
 
-    public void setIdGeocercaCabecera(int idGeocercaCabecera) {
-        this.idGeocercaCabecera = idGeocercaCabecera;
+    public void setGeocercaCabeceraIdGeocercaCabecera(int geocercaCabeceraIdGeocercaCabecera) {
+        this.geocercaCabeceraIdGeocercaCabecera = geocercaCabeceraIdGeocercaCabecera;
     }
 
 
