@@ -11,7 +11,7 @@ import cl.blackgps.back.entities.ActivoOld;
 public interface ActivoRepositoryOld extends CrudRepository<ActivoOld, Integer>{
 
     public abstract ArrayList<ActivoOld> findByAnio(int anio);
-    public abstract ArrayList<ActivoOld> findByIdVehiculo(int idVehiculo);
+    public abstract ArrayList<ActivoOld> findByVehiculoIdVehiculo(int vehiculoIdVehiculo);
     public abstract ArrayList<ActivoOld> findByDadoDeBaja(int dadoDeBaja);
     public abstract ArrayList<ActivoOld> findByAreaIdArea(int areaIdArea);
     public abstract ArrayList<ActivoOld> findByTipoActivoIdTipoActivo(int tipoActivoIdTipoActivo);

@@ -10,7 +10,7 @@ import cl.blackgps.back.entities.PlanMantenimiento;
 public class ActivoDTO implements Serializable {
 
     private int idActivo;
-    private int idVehiculo;
+    private int vehiculoIdVehiculo;
     private int areaIdArea;
     private int bodegaActivosIdBodega;
     private String nombreBodega;
@@ -34,9 +34,9 @@ public class ActivoDTO implements Serializable {
     public ActivoDTO() {
     }
 
-    public ActivoDTO(int idActivo, int idVehiculo, int areaIdArea, int bodegaActivosIdBodega, String nombreBodega, int tipoActivoIdTipoActivo, String nombreTipoActivo, int anio, Boolean dadoDeBaja, int idActivoPlanes, int idPlanActivo, String nombrePlanMantenimiento, Boolean porKm, Boolean porHora, Boolean porPeriodo) {
+    public ActivoDTO(int idActivo, int vehiculoIdVehiculo, int areaIdArea, int bodegaActivosIdBodega, String nombreBodega, int tipoActivoIdTipoActivo, String nombreTipoActivo, int anio, Boolean dadoDeBaja, int idActivoPlanes, int idPlanActivo, String nombrePlanMantenimiento, Boolean porKm, Boolean porHora, Boolean porPeriodo) {
         this.idActivo = idActivo;
-        this.idVehiculo = idVehiculo;
+        this.vehiculoIdVehiculo = vehiculoIdVehiculo;
         this.areaIdArea = areaIdArea;
         this.bodegaActivosIdBodega = bodegaActivosIdBodega;
         this.nombreBodega = nombreBodega;
@@ -53,9 +53,9 @@ public class ActivoDTO implements Serializable {
     }
 
 
-    public ActivoDTO(int idActivo, int idVehiculo, int areaIdArea, int bodegaActivosIdBodega, String nombreBodega, int tipoActivoIdTipoActivo, String nombreTipoActivo, int anio, Boolean dadoDeBaja, int idActivoPlanes, int idPlanActivo, String nombrePlanMantenimiento, Boolean porKm, Boolean porHora, Boolean porPeriodo, List<PlanMantenimiento> activoPlanes) {
+    public ActivoDTO(int idActivo, int vehiculoIdVehiculo, int areaIdArea, int bodegaActivosIdBodega, String nombreBodega, int tipoActivoIdTipoActivo, String nombreTipoActivo, int anio, Boolean dadoDeBaja, int idActivoPlanes, int idPlanActivo, String nombrePlanMantenimiento, Boolean porKm, Boolean porHora, Boolean porPeriodo, List<PlanMantenimiento> activoPlanes) {
         this.idActivo = idActivo;
-        this.idVehiculo = idVehiculo;
+        this.vehiculoIdVehiculo = vehiculoIdVehiculo;
         this.areaIdArea = areaIdArea;
         this.bodegaActivosIdBodega = bodegaActivosIdBodega;
         this.nombreBodega = nombreBodega;
@@ -81,12 +81,12 @@ public class ActivoDTO implements Serializable {
         this.idActivo = idActivo;
     }
 
-    public int getIdVehiculo() {
-        return this.idVehiculo;
+    public int getVehiculoIdVehiculo() {
+        return this.vehiculoIdVehiculo;
     }
 
-    public void setIdVehiculo(int idVehiculo) {
-        this.idVehiculo = idVehiculo;
+    public void setVehiculoIdVehiculo(int vehiculoIdVehiculo) {
+        this.vehiculoIdVehiculo = vehiculoIdVehiculo;
     }
 
     public int getAreaIdArea() {

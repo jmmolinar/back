@@ -25,7 +25,7 @@ public interface ActivoRepository extends BaseRepository<Activo, Integer> {
     // De la mano con ActivoService
     @Query(value = "SELECT " 
             + "activo.id_activo, " 
-            + "activo.id_vehiculo, "
+            + "activo.vehiculo_id_vehiculo, "
             + "activo.area_id_area, " 
             + "activo.bodega_activos_id_bodega_activos, "
             + "bodega_activos.nombre AS 'BODEGA', " 

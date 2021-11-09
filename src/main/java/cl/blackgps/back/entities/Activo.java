@@ -31,7 +31,7 @@ import cl.blackgps.back.dto.ActivoDTO;
     name = "consultarActivoDTO",
     query = "SELECT "
     + "activo.id_activo AS idActivo, "
-    + "activo.id_vehiculo AS idVehiculo, "
+    + "activo.vehiculo_id_vehiculo AS vehiculoIdVehiculo, "
     + "activo.area_id_area AS areaIdArea, "
     + "activo.bodega_activos_id_bodega_activos AS bodegaActivosIdBodega, "
     + "bodega_activos.nombre AS 'nombreBodega', "
@@ -64,7 +64,7 @@ import cl.blackgps.back.dto.ActivoDTO;
         targetClass = ActivoDTO.class,
         columns = {
             @ColumnResult(name = "idActivo", type = Integer.class),
-            @ColumnResult(name = "idVehiculo", type = Integer.class),
+            @ColumnResult(name = "vehiculoIdVehiculo", type = Integer.class),
             @ColumnResult(name = "areaIdArea", type = Integer.class),
             @ColumnResult(name = "bodegaActivosIdBodega", type = Integer.class),
             @ColumnResult(name = "nombreBodega", type = String.class),
@@ -97,8 +97,8 @@ public class Activo implements Serializable{
     private int anio;
     @Column(name = "dado_de_baja")
     private Boolean dadoDeBaja;
-    @Column(name = "id_vehiculo")
-    private int idVehiculo;
+    @Column(name = "vehiculo_id_vehiculo")
+    private int vehiculoIdVehiculo;
     @Column(name = "area_id_area")
     private int areaIdArea;
 
@@ -148,11 +148,11 @@ public class Activo implements Serializable{
     public Activo() {
     }
 
-    public Activo(int idActivo, int anio, Boolean dadoDeBaja, int idVehiculo, int areaIdArea, BodegaActivos bodegaActivos, TipoActivo tipoActivo, List<PlanMantenimiento> activoPlanes, List<Documento> documentos, List<Orden> ordenes) {
+    public Activo(int idActivo, int anio, Boolean dadoDeBaja, int vehiculoIdVehiculo, int areaIdArea, BodegaActivos bodegaActivos, TipoActivo tipoActivo, List<PlanMantenimiento> activoPlanes, List<Documento> documentos, List<Orden> ordenes) {
         this.idActivo = idActivo;
         this.anio = anio;
         this.dadoDeBaja = dadoDeBaja;
-        this.idVehiculo = idVehiculo;
+        this.vehiculoIdVehiculo = vehiculoIdVehiculo;
         this.areaIdArea = areaIdArea;
         this.bodegaActivos = bodegaActivos;
         this.tipoActivo = tipoActivo;
@@ -189,12 +189,12 @@ public class Activo implements Serializable{
         this.dadoDeBaja = dadoDeBaja;
     }
 
-    public int getIdVehiculo() {
-        return this.idVehiculo;
+    public int getVehiculoIdVehiculo() {
+        return this.vehiculoIdVehiculo;
     }
 
-    public void setIdVehiculo(int idVehiculo) {
-        this.idVehiculo = idVehiculo;
+    public void setVehiculoIdVehiculo(int vehiculoIdVehiculo) {
+        this.vehiculoIdVehiculo = vehiculoIdVehiculo;
     }
 
     public int getAreaIdArea() {

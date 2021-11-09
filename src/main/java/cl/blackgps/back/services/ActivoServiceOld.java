@@ -31,8 +31,8 @@ public class ActivoServiceOld {
         return activoRepositoryOld.findByAnio(anio);
     }
 
-    public ArrayList<ActivoOld> obtenerPorVehiculos(int idVehiculo){
-        return activoRepositoryOld.findByIdVehiculo(idVehiculo);
+    public ArrayList<ActivoOld> obtenerPorVehiculos(int vehiculoIdVehiculo){
+        return activoRepositoryOld.findByVehiculoIdVehiculo(vehiculoIdVehiculo);
     }
 
     public ArrayList<ActivoOld> obtenerPorTipo(int tipoActivoIdTipoActivo){

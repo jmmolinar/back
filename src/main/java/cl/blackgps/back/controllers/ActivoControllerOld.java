@@ -47,8 +47,8 @@ public class ActivoControllerOld {
     }
 
     @GetMapping("/vehiculos/{id}")
-    public ArrayList<ActivoOld> obtenerActivosPorVehiculos(@PathVariable("id") int idVehiculo){
-        return this.activoServiceOld.obtenerPorVehiculos(idVehiculo);
+    public ArrayList<ActivoOld> obtenerActivosPorVehiculos(@PathVariable("id") int vehiculoIdVehiculo){
+        return this.activoServiceOld.obtenerPorVehiculos(vehiculoIdVehiculo);
     }
 
     @GetMapping("/tipos/{id}") /** CONSULTANDO LOS TIPOS CON URL ESPECÍFICA DE TIPOS */
